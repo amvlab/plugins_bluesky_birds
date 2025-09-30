@@ -11,15 +11,15 @@ This plugin extends BlueSky with bird traffic simulation functionality, allowing
 ## Features
 
 - **Bird Traffic Simulation** (`birdtraffic.py`): Core simulation engine for bird movement and behavior
-- **Real-time Visualization** (`glbirds.py`): OpenGL-based rendering of birds in the BlueSky pyqt5 GUI
+- **Real-time Visualization** (`glbirds.py`): OpenGL-based rendering of birds in BlueSky's Qt6-based GUI
 
 ## Components
 
 ### birdtraffic.py
-The core simulation module that handles the bird traffic arrays. these are similar to BlueSky traffic arrays.
+The core simulation module that handles the bird traffic arrays. These are similar to BlueSky traffic arrays.
 
 ### glbirds.py
-The visualization module providing OpenGL-based bird rendering and integration with BlueSky's Qt-based GUI
+The visualization module providing OpenGL-based bird rendering and integration with BlueSky's Qt6-based GUI.
 
 ## Installation
 
