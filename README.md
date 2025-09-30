@@ -84,6 +84,7 @@ CREBIRD HAWK01,hawk,52.3676,4.9041,090,500,15
 ```
 DELBIRD birdid
 ```
+- `birdid`: Unique bird identifier
 
 Example:
 ```
