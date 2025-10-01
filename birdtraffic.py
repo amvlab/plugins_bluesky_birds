@@ -13,7 +13,6 @@ from bluesky.network.publisher import state_publisher
 BIRDUPDATE_RATE = 5
 
 def init_plugin():
-    bird_traf = BirdTraffic()
 
     config = {
         # The name of your plugin
@@ -194,3 +193,4 @@ class BirdTraffic(core.Entity):
         self.remove_bird(birdid)
 
 
+bird_traf = BirdTraffic()
