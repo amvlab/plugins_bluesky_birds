@@ -1,6 +1,6 @@
 """ Bird traffic gui plugin 
 
-Developed by amvlab in collaboration with Dr. Isabel Metz from DLR
+Jointly developed by amvlab and Dr. Isabel Metz from DLR
 """
 import numpy as np
 
