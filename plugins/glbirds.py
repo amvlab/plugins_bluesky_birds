@@ -1,4 +1,5 @@
-""" Bird traffic gui plugin 
+""" 
+Bird traffic gui plugin 
 
 Jointly developed by amvlab and Dr. Isabel Metz from DLR
 """
@@ -15,7 +16,7 @@ from bluesky.network.subscriber import subscriber
 settings.set_variable_defaults(text_size=13, bird_size=10)
 
 palette.set_default_colours(
-    bird=(255, 0, 0),
+    bird=(255, 255, 0),
     angry_bird=(255, 160, 0)
 )
 
@@ -39,7 +40,7 @@ class BirdTraffic(glh.RenderObject, layer=100):
         super().__init__(parent)
         self.initialized = False
 
-        self.bird_hdg = glh.GLBuffer()
+        self.bird_trk = glh.GLBuffer()
         self.bird_lat = glh.GLBuffer()
         self.bird_lon = glh.GLBuffer()
         self.bird_alt = glh.GLBuffer()
@@ -52,7 +53,7 @@ class BirdTraffic(glh.RenderObject, layer=100):
 
     def create(self):
         bird_size = settings.bird_size
-        self.bird_hdg.create(MAX_NBIRDS * 4, glh.GLBuffer.UsagePattern.StreamDraw)
+        self.bird_trk.create(MAX_NBIRDS * 4, glh.GLBuffer.UsagePattern.StreamDraw)
         self.bird_lat.create(MAX_NBIRDS * 4, glh.GLBuffer.UsagePattern.StreamDraw)
         self.bird_lon.create(MAX_NBIRDS * 4, glh.GLBuffer.UsagePattern.StreamDraw)
         self.bird_alt.create(MAX_NBIRDS * 4, glh.GLBuffer.UsagePattern.StreamDraw)
@@ -81,7 +82,7 @@ class BirdTraffic(glh.RenderObject, layer=100):
         self.bird_symbol.create(vertex=birdvertices)
 
         self.bird_symbol.set_attribs(lat=self.bird_lat, lon=self.bird_lon, color=self.bird_color,
-                                   orientation=self.bird_hdg, instance_divisor=1)
+                                   orientation=self.bird_trk, instance_divisor=1)
 
         self.birdlabels.create(self.bird_lbl, self.bird_lat, self.bird_lon, self.bird_color,
                              (bird_size, -0.5 * bird_size), instanced=True)
@@ -92,7 +93,6 @@ class BirdTraffic(glh.RenderObject, layer=100):
 
             if self.show_lbl:
                 self.birdlabels.draw(n_instances=self.nbirds)
-
 
     @subscriber(topic='BIRDDATA',  actonly=True)
     def bird_catcher(self, data):
@@ -112,21 +112,21 @@ class BirdTraffic(glh.RenderObject, layer=100):
 
         # get bird data
         bird_id = data.id
+        # data.type sometimes throws "Store has no attribute type" even though it has
         bird_type = data.type
         bird_lat = data.lat
         bird_lon = data.lon
-        bird_hdg = data.hdg
+        bird_trk = data.trk
         bird_alt = data.alt
         bird_vs = data.vs
-        bird_hs = data.hs
+        bird_gs = data.gs
         bird_lbl_type = data.lbl_type
         angry_birds = data.angry_birds
-
         # update buffers
         self.nbirds = len(bird_lat)
         self.bird_lat.update(np.array(bird_lat, dtype=np.float32))
         self.bird_lon.update(np.array(bird_lon, dtype=np.float32))
-        self.bird_hdg.update(np.array(bird_hdg, dtype=np.float32))
+        self.bird_trk.update(np.array(bird_trk, dtype=np.float32))
         self.bird_alt.update(np.array(bird_alt, dtype=np.float32))
 
         # colors
@@ -135,32 +135,36 @@ class BirdTraffic(glh.RenderObject, layer=100):
             (min(self.nbirds, MAX_NBIRDS), 4), dtype=np.uint8)
         rgb_bird = palette.bird
 
-        zdata = zip(bird_id, bird_type, bird_alt, bird_vs, bird_hs, angry_birds)
-        for i, (id, b_type, alt, vs, hs, angry_bird) in enumerate(zdata):
+        zdata = zip(bird_id, bird_type, bird_alt, bird_vs, bird_gs, angry_birds)
+        for i, (id, b_type, alt, vs, gs, angry_bird) in enumerate(zdata):
             if i >= MAX_NBIRDS:
                 break
 
             # Make label
             if self.show_lbl:
+
                 if bird_lbl_type == 'id':
-                    rawlabel += '%-8s' % id[:8]
+                    # birds from flight plans can have ids shorter than 8
+                    # and are numeric
+                    rawlabel += '%-8s' % str(id)[:int(np.minimum(len(str(id)),8))]
                 else:
-                    rawlabel += '%-8s' % b_type[:8]
+                    rawlabel += '%-8s' % str(b_type)[:int(np.minimum(len(str(id)),8))]
                     
                 rawlabel += '%-5d' % int(alt / ft + 0.5)
                 vsarrow = 30 if vs > 0.25 else 31 if vs < -0.25 else 32
                 rawlabel += '%1s  %-8d' % (chr(vsarrow),
-                                            int(hs / kts + 0.5))
+                                            int(gs / kts + 0.5))
             
             # check if bird is angry
             if angry_bird:
                 color[i, :] = palette.angry_bird + (255,)
 
+
             else:
                 # Set default color
                 color[i, :] = tuple(rgb_bird) + (255,)
-
         
         # update bird label
         self.bird_color.update(color)
+
         self.bird_lbl.update(np.array(rawlabel.encode('utf8'), dtype=np.bytes_))
