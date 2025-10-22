@@ -34,7 +34,7 @@ def init_plugin():
 
 class BirdTraffic(core.Entity):
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the BirdTraffic entity with default parameters and reset all bird data."""
         super().__init__()
 
@@ -51,8 +51,17 @@ class BirdTraffic(core.Entity):
         # some global parameters
         self.earth_radius = 6371000.0  # Earth radius in m
 
-    def update(self):
-        """Update bird positions either from a loaded bird movement file or individually created."""
+    def update(self) -> None:
+        """Main update loop for bird position calculations.
+
+        This method is automatically called by the BlueSky simulation framework
+        during every simulation timestep update. It determines whether to:
+        - Update birds from loaded movement file data (if available), or
+        - Update individual bird positions based on their current velocity and heading
+
+        The update mode is determined by the `is_loading_bird_movements` flag.
+        This is registered as the 'update' callback in the plugin configuration.
+        """
 
         if self.is_loading_bird_movements:
             self.update_bird_movements()
@@ -60,7 +69,7 @@ class BirdTraffic(core.Entity):
         else:
             self.update_position_individuals()
 
-    def load_bird_movements(self, filename):
+    def load_bird_movements(self, filename: str):
         """Load bird movement data from a CSV file and prepare it for simulation.
 
         Args:
@@ -103,8 +112,18 @@ class BirdTraffic(core.Entity):
         # feed the data to the simulation
         self._assign_values(data)
 
-    def update_bird_movements(self):
-        """Update bird positions from loaded movement file data based on simulation time."""
+    def update_bird_movements(self) -> None:
+        """Update bird positions using pre-recorded movement data from CSV files.
+
+        This method processes chronologically ordered bird movement data by:
+        - Finding all movement records that should be applied at current simulation time
+        - Creating new birds that appear in the data via `_check_bird()`
+        - Removing birds that have completed their recorded tracks
+        - Updating position interpolation parameters for active birds
+        - Cleaning up processed data to manage memory usage
+
+        The method resets the simulation when all movement data is exhausted.
+        """
 
         # only required if there is at least one bird left to be simulated
         # if no birds are left, we can get out again
@@ -182,28 +201,41 @@ class BirdTraffic(core.Entity):
         # update bird positions
         self.update_position_bird_movements()
 
-    ######################################################################################################
-    ######################################################################################################
-
-    # CREATE INDIVIDUAL BIRDS
-
-    ######################################################################################################
-    ######################################################################################################
-
     def create_individual(
         self,
-        birdid,
-        birdtype,
-        flock_flag,
-        bird_size,
-        no_inds,
-        birdlat,
-        birdlon,
-        birdtrk,
-        birdalt,
-        birdspd,
+        birdid: str,
+        birdtype: str,
+        flock_flag: bool,
+        bird_size: int,
+        no_inds: int,
+        birdlat: float,
+        birdlon: float,
+        birdtrk: float,
+        birdalt: float,
+        birdspd: float,
     ):
-        """Creating solo birdies for testing"""
+        """Create an individual bird or flock in the simulation.
+
+        This method instantiates a new bird entity with complete state information including
+        position, velocity, and physical characteristics. The collision radius is calculated
+        based on bird size and number of individuals according to wildlife strike research.
+
+        Args:
+            birdid: Unique identifier for the bird or flock
+            birdtype: Species or type classification (e.g., 'pelican', 'goose')
+            flock_flag: True if individual bird, False if part of a flock
+            bird_size: Physical size category - 1=small (0.32m span), 2=medium (0.68m), 3=large (1.40m)
+            no_inds: Number of individual birds in this group (1 for solo, >1 for flocks)
+            birdlat: Initial latitude position in decimal degrees
+            birdlon: Initial longitude position in decimal degrees
+            birdtrk: Initial track/heading in degrees (0-360)
+            birdalt: Initial altitude in meters above sea level
+            birdspd: Initial ground speed in meters per second
+
+        Note:
+            Collision radii are computed using formulas from aerospace research
+            (https://doi.org/10.3390/aerospace5040112) to support wildlife strike detection.
+        """
 
         # add one bird object
         n = 1
@@ -282,12 +314,17 @@ class BirdTraffic(core.Entity):
             else:
                 stack.echo(f"Gang birdie size not captured, {bird_size}")
 
-    ##############
-    # UPDATE POSITION
-    ##############
+    def update_position_bird_movements(self) -> None:
+        """Calculate current bird positions by interpolating between recorded waypoints.
 
-    def update_position_bird_movements(self):
-        """Update bird positions using linear interpolation between recorded positions."""
+        This method performs linear interpolation for birds following pre-recorded tracks by:
+        - Computing time ratio between last and next recorded positions
+        - Interpolating latitude and longitude coordinates linearly
+        - Handling altitude changes only when altitude is actually changing
+        - Calculating vertical speed based on altitude differences
+
+        Uses current simulation time to determine interpolation position along each track segment.
+        """
 
         # simply linear interpolation between two given recorded positions
 
@@ -317,7 +354,7 @@ class BirdTraffic(core.Entity):
 
         self.vs = (self.next_alt - self.last_alt) / (entire_delta_t)
 
-    def update_position_individuals(self):
+    def update_position_individuals(self) -> None:
         """Update positions of individual birds based on their current speed and heading.
 
         Uses current position, speed, and heading to extrapolate new position.
@@ -338,17 +375,7 @@ class BirdTraffic(core.Entity):
         # correct input format required, self.last_ts is an array
         self.last_ts = np.ones(len(self.last_ts)) * bs.sim.simt
 
-    ######################################################################################################
-    ######################################################################################################
-
-    # DELETE BIRDS FROM SIMULATION
-    # a) because they left the area
-    # b) because an aircraft had them for breakfast
-
-    ######################################################################################################
-    ######################################################################################################
-
-    def remove_bird(self, index_to_remove):
+    def remove_bird(self, index_to_remove: int | list[int]):
         """Remove bird from simulation and clean up all associated data.
 
         Args:
@@ -391,8 +418,20 @@ class BirdTraffic(core.Entity):
         self.next_lon = np.delete(self.next_lon, index_to_remove)
         self.next_alt = np.delete(self.next_alt, index_to_remove)
 
-    def reset(self):
-        """Reset all bird data and initialize empty arrays for bird properties."""
+    def reset(self) -> None:
+        """Reset the simulation to initial state with no birds.
+
+        This method is automatically called by the BlueSky simulation framework
+        whenever the main simulation is reset. It clears all bird data and
+        reinitializes empty arrays for:
+        - Bird identification and classification (ID, type, size, flock status)
+        - Spatial data (position, track, collision radius)
+        - Kinematic data (velocities, timestamps)
+        - Movement file data (input arrays and interpolation parameters)
+
+        Also called automatically when bird movement data is exhausted.
+        This is registered as the 'reset' callback in the plugin configuration.
+        """
 
         self.nbird = 0  # number of birds
         self.is_loading_bird_movements = False
@@ -455,6 +494,19 @@ class BirdTraffic(core.Entity):
         birdalt: float = 0,
         birdspd: float = 0,
     ):
+        """Create a new bird in the simulation.
+
+        Args:
+            birdid: Unique identifier for the bird
+            birdtype: Species/type of bird (default: "pelican")
+            bird_size: Size category - 1=small, 2=medium, 3=large (default: 3)
+            no_inds: Number of individuals in group (default: 1)
+            birdlat: Latitude position in degrees (default: 52.0)
+            birdlon: Longitude position in degrees (default: 4.0)
+            birdtrk: Track/heading in degrees (default: None)
+            birdalt: Altitude in feet (default: 0)
+            birdspd: Speed in knots (default: 0)
+        """
         # correct some argument units
         if no_inds > 1:
             flock_flag = False
@@ -479,7 +531,12 @@ class BirdTraffic(core.Entity):
         )
 
     @stack.command(name="DELBIRD")
-    def DELBIRD(self, birdid):
+    def DELBIRD(self, birdid: str) -> None:
+        """Delete a bird from the simulation.
+
+        Args:
+            birdid: Unique identifier of the bird to remove
+        """
         # bird left the area, landed or was eaten by an aircraft
 
         # remove_bird needs an array index - convert
@@ -488,29 +545,39 @@ class BirdTraffic(core.Entity):
         self.remove_bird(index_to_remove)
 
     @stack.command(name="BIRDS")
-    def BIRDS(self, filename):
-        """when we want to load a csv file with bird movements"""
+    def BIRDS(self, filename: str) -> None:
+        """Load bird movement data from a CSV file.
+
+        Args:
+            filename: Name of the CSV file (without extension) containing bird movement data
+        """
 
         self.load_bird_movements(filename)
 
     @stack.command(name="BIRDLABEL")
-    def birdlabel(self):
-        """BIRDLABEL"""
+    def birdlabel(self) -> None:
+        """Toggle between bird label display modes (ID or type)."""
         # choose the other option
         self.lbl_type = (
             self.labels[0] if self.lbl_type == self.labels[1] else self.labels[1]
         )
 
-    def _id2idx(self, birdid):
+    def _id2idx(self, birdid: str) -> int:
         """Find index of bird id"""
 
         return np.where(self.id == np.char.upper(np.array(birdid)))[0][0]
 
-    def _assign_values(self, data):
-        """Assign values from bird movement data to internal arrays.
+    def _assign_values(self, data: pd.DataFrame) -> None:
+        """Parse and assign bird movement data from CSV into simulation arrays.
+
+        This method processes the loaded DataFrame and extracts all necessary fields
+        for bird simulation including positions, velocities, timing, and metadata.
+        The data is converted to appropriate numpy arrays for efficient computation.
 
         Args:
-            data: Pandas DataFrame containing bird movement data
+            data: DataFrame with columns for id, time, lat, lon, alt, cat (size),
+                 no_individuals, flock_flag, trk (track), spd (speed), and shifted
+                 time/position data for interpolation
         """
         self.input_id1 = np.array(pd.to_numeric(data["id"])).astype(int)
         self.input_id2 = np.array(pd.to_numeric(data["id1"])).astype(int)
@@ -531,7 +598,14 @@ class BirdTraffic(core.Entity):
         self.input_lon_next = np.array(pd.to_numeric(data["lonshift"]))
         self.input_alt_next = np.array(pd.to_numeric(data["altshift"]))
 
-    def _extrapolate_position(self, delta_t, delta_s, lat_in, lon_in, trk):
+    def _extrapolate_position(
+        self,
+        delta_t: float,
+        delta_s: np.ndarray | float,
+        lat_in: np.ndarray | float,
+        lon_in: np.ndarray | float,
+        trk: np.ndarray | float,
+    ) -> tuple[np.ndarray | float, np.ndarray | float]:
         """Extrapolate bird position using haversine formula.
 
         Args:
@@ -568,8 +642,13 @@ class BirdTraffic(core.Entity):
         return lat_expol, lon_expol
 
     def _check_bird(
-        self, input_id1, input_bird_size, input_no_inds, input_flock_flag, input_alt
-    ):
+        self,
+        input_id1: np.ndarray,
+        input_bird_size: np.ndarray,
+        input_no_inds: np.ndarray,
+        input_flock_flag: np.ndarray,
+        input_alt: np.ndarray,
+    ) -> None:
         """Check if birds are already known to simulation and create new ones if needed.
 
         Args:
@@ -587,8 +666,8 @@ class BirdTraffic(core.Entity):
         # WARNING: THis bird_idx_to add does refer to the idx in the list "input_id1", not the position
         # in the input list containing all birdies
         bird_idx_to_add = np.where(
-            np.in1d(input_id1, self.removed_id, invert=True)
-            & (np.in1d(input_id1, self.id, invert=True))
+            np.isin(input_id1, self.removed_id, invert=True)
+            & (np.isin(input_id1, self.id, invert=True))
         )[0]
 
         # np.where idx is not in removed or id
@@ -653,7 +732,7 @@ class BirdTraffic(core.Entity):
         self.alt = np.append(self.alt, input_alt[bird_idx_to_add])
         self.collision_radius = np.append(self.collision_radius, add_radius)
 
-    def _remove_input(self, no_to_remove):
+    def _remove_input(self, no_to_remove: int) -> None:
         """Remove processed input data to save memory.
 
         Args:
@@ -681,8 +760,12 @@ class BirdTraffic(core.Entity):
         self.input_alt_next = self.input_alt_next[no_to_remove:]
 
     @state_publisher(topic="BIRDDATA", dt=1000 // BIRDUPDATE_RATE)
-    def release_birds(self):
-        """release them to the visual world"""
+    def release_birds(self) -> dict:
+        """Publish bird data to the GUI for visualization.
+
+        Returns:
+            dict: Dictionary containing bird positions, velocities, and metadata for GUI display
+        """
 
         data = dict()
         # id is necessary for some gui stuff
