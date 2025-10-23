@@ -36,10 +36,10 @@ To use these plugins place the contents of the `plugins` directory wherever your
 
 Place the contents of the `scenarios` directory whereever your BlueSky instance looks for scenarios.
 
-   - ### demo1.scn
+   - #### demo1.scn
      This demo loads pre-determined bird movements from `plugins/bird_movements/sample_birds.csv`.
 
-   - ### demo2.scn
+   - #### demo2.scn
      This demo creates a single bird with a given speed, heading, and altitude.
 
 ## Installation
