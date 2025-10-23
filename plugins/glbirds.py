@@ -20,6 +20,7 @@ palette.set_default_colours(bird=(255, 255, 0), angry_bird=(255, 160, 0))
 # Static defaults
 MAX_NBIRDS = 10000
 
+
 ### Initialization function of your plugin.
 def init_plugin():
 
@@ -34,6 +35,7 @@ def init_plugin():
 # Bird gl traffic class
 class BirdTraffic(glh.RenderObject, layer=100):
     """Initialize the BirdTraffic opengl render object."""
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initialized = False

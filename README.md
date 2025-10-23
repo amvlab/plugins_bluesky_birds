@@ -10,16 +10,31 @@ This plugin extends BlueSky with bird traffic simulation functionality, allowing
 
 ## Features
 
-- **Bird Traffic Simulation** (`birdtraffic.py`): Core simulation engine for bird movement and behavior
-- **Real-time Visualization** (`glbirds.py`): OpenGL-based rendering of birds in BlueSky's Qt6-based GUI
+- **Bird Traffic Simulation** (`plugins/birdtraffic.py`): Core simulation engine for bird movement and behaviour
+- **Real-time Visualization** (`plugins/glbirds.py`): OpenGL-based rendering of birds in BlueSky's Qt6-based GUI
+- **Demo Scenarios** Two demo scenarios are included. One loads bird movements with pre-determined tracks. The other creates an individual bird which moves in the set direction.
 
 ## Components
 
-### birdtraffic.py
+### Plugins
+
+To use these plugins place the contents of the `plugins` directory wherever your BlueSky instance looks for plugins.
+
+#### birdtraffic.py
 The core simulation module that handles the bird traffic arrays. These are similar to BlueSky traffic arrays.
 
-### glbirds.py
+#### glbirds.py
 The visualization module providing OpenGL-based bird rendering and integration with BlueSky's Qt6-based GUI.
+
+### Scenarios
+
+Place the contents of the `scenarios` directory whereever your BlueSky instance looks for scenarios.
+
+### demo1.scn
+This demo loads pre-determined bird movements from `plugins/bird_movements/sample_birds.csv`.
+
+### demo2.scn
+This demo creates a single bird with a given speed, heading, and altitude.
 
 ## Installation
 
@@ -60,7 +75,7 @@ The bird visualization must currently be loaded manually from the BlueSky consol
    ADDVIS BIRDTRAFFIC
    ```
 
-Once both components are loaded, any created birds will appear in the simulation environment.
+Once both components are loaded, any created birds will appear in the simulation environment. Note that this plugin cannot be loaded from `settings.cfg`
 
 ### Bird Commands
 
@@ -89,6 +104,28 @@ DELBIRD birdid
 Example:
 ```
 DELBIRD HAWK01
+```
+
+**BIRDS** Load bird movement files from a csv file.
+```
+BIRDS filename
+```
+- `filename`: Name of the CSV file (without extension) containing bird movement data
+
+Example:
+```
+BIRDS plugins/bird_movements/sample_birds.csv
+```
+
+**BIRDLABEL** "Toggle between bird label display modes (ID or type).
+```
+BIRDLABEL
+```
+- No arguments
+
+Example:
+```
+BIRDLABEL
 ```
 
 ## License
