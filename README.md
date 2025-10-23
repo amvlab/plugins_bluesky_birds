@@ -90,11 +90,14 @@ Once both components are loaded, any created birds will appear in the simulation
 CREBIRD birdid,type,lat,lon,hdg,alt,spd
 ```
 - `birdid`: Unique bird identifier
-- `type`: Bird type (default: goose)
-- `lat,lon`: Position coordinates
-- `hdg`: Heading in degrees
-- `alt`: Altitude in feet
-- `spd`: Speed in knots
+- `type`: Bird type (default: pelican)
+- `bird_size`: 1= small (e.g. a Sparrow), 2 = medium (e.g. a duck), 3 = large (e.g. a pelican). 
+- `no_inds`: how many birds are flying together in that bird id
+- `lat`: Latitude [degrees]
+- `lon`: Longitude [degrees]
+- `trk`: track [degrees]
+- `alt`: altitude [feet]
+- `spd`: speed in [knots]
 
 Example:
 ```
@@ -112,15 +115,47 @@ Example:
 DELBIRD HAWK01
 ```
 
-**BIRDS** Load bird movement files from a csv file.
+**BIRDS** - Open a `csv` file with predefined bird tracks, e.g. from avian radar, weather radar or GPS tracking
+Refer to this [publication](https://doi.org/10.3390/aerospace5040112) for documentation of integrating avian and weather radar data
+
 ```
-BIRDS filename
+BIRDS filepath
 ```
-- `filename`: Name of the CSV file (without extension) containing bird movement data
+- `filepath`: place the bird track csv inside the plugins directory and give the path, e.g. `birds_movements/sample_birds`
 
 Example:
 ```
-BIRDS plugins/bird_movements/sample_birds.csv
+BIRDS plugins/bird_movements/sample_birds
+```
+
+#### Bird tracks file format
+
+This file must be a `csv` file. Ech individual line refers to a bird position at a given time. It is optional to include the header column names but they must have the following fields: 
+
+- 'id', 'time', 'lon','lat', 'alt', 'cat', 'no_individuals', 'flock_flag','id1', 'hdg', 'spd'
+
+Each field is explained below:
+
+- `id`: Unique bird identifier
+- `time`: Simulation time of recorded Position [seconds]
+- `lon`: longitude [decimal degree]
+- `lat`: latitude [decimal degree]
+- `alt`: altitude [metres]
+- `cat`: bird category or type, e.g. [small, medium, large] or [goose, hawk, pelican]
+- `no_individuals`: how many birds are represented by the bird id [-]
+- `flock_flag`: if the bird id represents a single bird or a flock [-]
+- `id1`: identical to 'id' EXCEPT in the last line of that bird. There, 'id1' must differ to get the bird id removed from the simulation
+- `trk`: track of bird [degrees] 
+- `spd`: Speed of bird [metres per second]
+
+In the line with the last recorded bird position, 'id1' must differ from 'id' to delete the bird from the simulation after their last recorded position.
+
+An example scenario that loads pre-deterimned bird tracks can be seen in [demo1.scn](https://github.com/amvlab/plugins_bluesky_birds/blob/main/scenarios/demo1.scn). This scenario calls the bird file found in `plugins/bird_movements/sample_birds.csv`.
+
+This scenario can be loaded in BlueSky by entering the follwoing command in the BlueSky console.
+
+```
+IC demo1
 ```
 
 **BIRDLABEL** "Toggle between bird label display modes (ID or type).
