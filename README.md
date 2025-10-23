@@ -91,7 +91,7 @@ CREBIRD birdid,type,lat,lon,hdg,alt,spd
 ```
 - `birdid`: Unique bird identifier
 - `type`: Bird type (default: pelican)
-- `bird_size`: 1= small (e.g. a Sparrow), 2 = medium (e.g. a duck), 3 = large (e.g. a pelican). 
+- `bird_size`: 1 = small (e.g. a Sparrow), 2 = medium (e.g. a duck), 3 = large (e.g. a pelican). 
 - `no_inds`: how many birds are flying together in that bird id
 - `lat`: Latitude [degrees]
 - `lon`: Longitude [degrees]
