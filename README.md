@@ -1,5 +1,11 @@
 # BlueSky Birds Plugin
 
+
+
+https://github.com/user-attachments/assets/b43ee9d3-bbc6-4dfc-8499-43ab9e1faf2f
+
+
+
 A BlueSky simulation plugin that adds realistic bird traffic simulation and visualization capabilities to the [BlueSky](https://github.com/TUDelft-CNS-ATM/bluesky) air traffic management simulator.
 
 Jointly developed by [amvlab](https://amvlab.eu) and [Dr. Isabel Metz](https://www.linkedin.com/in/isabel-c-metz/) from DLR.
