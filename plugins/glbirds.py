@@ -15,12 +15,10 @@ from bluesky.network.subscriber import subscriber
 
 # Register settings defaults
 settings.set_variable_defaults(text_size=13, bird_size=10)
-
 palette.set_default_colours(bird=(255, 255, 0), angry_bird=(255, 160, 0))
 
-# Static
+# Static defaults
 MAX_NBIRDS = 10000
-
 
 ### Initialization function of your plugin.
 def init_plugin():
@@ -35,7 +33,7 @@ def init_plugin():
 
 # Bird gl traffic class
 class BirdTraffic(glh.RenderObject, layer=100):
-
+    """Initialize the BirdTraffic opengl render object."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initialized = False
@@ -52,6 +50,7 @@ class BirdTraffic(glh.RenderObject, layer=100):
         self.show_lbl = True
 
     def create(self):
+        """Create the bird render object."""
         bird_size = settings.bird_size
         self.bird_trk.create(MAX_NBIRDS * 4, glh.GLBuffer.UsagePattern.StreamDraw)
         self.bird_lat.create(MAX_NBIRDS * 4, glh.GLBuffer.UsagePattern.StreamDraw)
@@ -102,6 +101,7 @@ class BirdTraffic(glh.RenderObject, layer=100):
         )
 
     def draw(self):
+        """This draws the bird render object on the UI."""
         if self.nbirds:
             self.bird_symbol.draw(n_instances=self.nbirds)
 
@@ -110,9 +110,7 @@ class BirdTraffic(glh.RenderObject, layer=100):
 
     @subscriber(topic="BIRDDATA", actonly=True)
     def bird_catcher(self, data):
-        """Receive bird data from bluesky Simulation Node."""
-        # if not self.initialized:
-        #     return
+        """Receive bird data from bluesky simulation node."""
 
         if ctx.action == ctx.action.Reset or ctx.action == ctx.action.ActChange:
             self.nbirds = 0
@@ -122,10 +120,10 @@ class BirdTraffic(glh.RenderObject, layer=100):
             self.update_bird_data(data)
 
     def update_bird_data(self, data):
+        """Update the bird data shown on GUI."""
 
         # get bird data
         bird_id = data.id
-        # data.type sometimes throws "Store has no attribute type" even though it has
         bird_type = data.type
         bird_lat = data.lat
         bird_lon = data.lon
@@ -135,6 +133,7 @@ class BirdTraffic(glh.RenderObject, layer=100):
         bird_gs = data.gs
         bird_lbl_type = data.lbl_type
         angry_birds = data.angry_birds
+
         # update buffers
         self.nbirds = len(bird_lat)
         self.bird_lat.update(np.array(bird_lat, dtype=np.float32))
@@ -174,7 +173,6 @@ class BirdTraffic(glh.RenderObject, layer=100):
                 # Set default color
                 color[i, :] = tuple(rgb_bird) + (255,)
 
-        # update bird label
+        # update bird color and label
         self.bird_color.update(color)
-
         self.bird_lbl.update(np.array(rawlabel.encode("utf8"), dtype=np.bytes_))
