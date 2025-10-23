@@ -26,21 +26,21 @@ This plugin extends BlueSky with bird traffic simulation functionality, allowing
 
 To use these plugins place the contents of the `plugins` directory wherever your BlueSky instance looks for plugins.
 
-   #### birdtraffic.py
-   The core simulation module that handles the bird traffic arrays. These are similar to BlueSky traffic arrays.
+   - #### birdtraffic.py
+     The core simulation module that handles the bird traffic arrays. These are similar to BlueSky traffic arrays.
 
-   #### glbirds.py
-   The visualization module providing OpenGL-based bird rendering and integration with BlueSky's Qt6-based GUI.
+   - #### glbirds.py
+     The visualization module providing OpenGL-based bird rendering and integration with BlueSky's Qt6-based GUI.
 
 ### Scenarios
 
 Place the contents of the `scenarios` directory whereever your BlueSky instance looks for scenarios.
 
-   ### demo1.scn
-   This demo loads pre-determined bird movements from `plugins/bird_movements/sample_birds.csv`.
+   - ### demo1.scn
+     This demo loads pre-determined bird movements from `plugins/bird_movements/sample_birds.csv`.
 
-   ### demo2.scn
-   This demo creates a single bird with a given speed, heading, and altitude.
+   - ### demo2.scn
+     This demo creates a single bird with a given speed, heading, and altitude.
 
 ## Installation
 
