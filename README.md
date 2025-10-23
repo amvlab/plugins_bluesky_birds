@@ -26,7 +26,7 @@ This plugin extends BlueSky with bird traffic simulation functionality, allowing
 
 To use these plugins place the contents of the `plugins` directory wherever your BlueSky instance looks for plugins.
 
-   - #### [birdtraffic.py]([url](https://github.com/amvlab/plugins_bluesky_birds/blob/main/plugins/birdtraffic.py))
+   - #### [birdtraffic.py](https://github.com/amvlab/plugins_bluesky_birds/blob/main/plugins/birdtraffic.py))
      The core simulation module that handles the bird traffic arrays. These are similar to BlueSky traffic arrays.
 
    - #### [glbirds.py]([url](https://github.com/amvlab/plugins_bluesky_birds/blob/main/plugins/glbirds.py))
