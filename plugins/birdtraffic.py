@@ -19,9 +19,7 @@ BIRDUPDATE_RATE = 1
 
 
 def init_plugin():
-
-    bird_traf = BirdTraffic()
-
+    global bird_traf
     config = {
         # The name of your plugin
         "plugin_name": "BIRDSIM",
@@ -78,7 +76,7 @@ class BirdTraffic(core.Entity):
         stack.echo(f"Bird file {filename} loaded!")
 
         self.is_loading_bird_movements = True
-        filename2use = filename + ".csv"
+        filename2use = "bird_movements/" + filename + ".csv"
         filename2read = os.path.join(self.dir, filename2use)
 
         # give the user the choice to pass a bird movement file with or without header
@@ -105,7 +103,7 @@ class BirdTraffic(core.Entity):
         data["timeshift"] = data["time"].shift(-1)
         data["latshift"] = data["lat"].shift(-1)
         data["lonshift"] = data["lon"].shift(-1)
-        data["altshift"] = data["alt"].shift(-1)
+        data["altshift"] = data["alt"].shift(-1)   
 
         # now we need the right order in time only
         data = data.sort_values(by="time")
@@ -782,3 +780,5 @@ class BirdTraffic(core.Entity):
         data["angry_birds"] = self.angry_birds
 
         return data
+
+bird_traf = BirdTraffic()

@@ -38,7 +38,7 @@ Place the contents of the `scenarios` directory whereever your BlueSky instance 
    - #### [demo1.scn](https://github.com/amvlab/plugins_bluesky_birds/blob/main/scenarios/demo1.scn)
      This demo loads pre-determined bird movements from `plugins/bird_movements/sample_birds.csv`.
 
-   - #### [demo2.scn](https://github.com/amvlab/plugins_bluesky_birds/blob/main/scenarios/demo1.scn)
+   - #### [demo2.scn](https://github.com/amvlab/plugins_bluesky_birds/blob/main/scenarios/demo2.scn)
      This demo creates a single bird with a given speed, heading, and altitude.
 
 ## Installation
@@ -120,11 +120,11 @@ Refer to this [publication](https://doi.org/10.3390/aerospace5040112) for docume
 ```
 BIRDS filepath
 ```
-- `filepath`: place the bird track csv inside the plugins directory and give the path, e.g. `birds_movements/sample_birds`
+- `filepath`: place the bird track csv inside the `plugins/bird_movements/` directory and give the filename, e.g. `sample_birds`
 
 Example:
 ```
-BIRDS plugins/bird_movements/sample_birds
+BIRDS sample_birds
 ```
 
 #### Bird tracks file format
@@ -149,7 +149,7 @@ Each field is explained below:
 
 In the line with the last recorded bird position, 'id1' must differ from 'id' to delete the bird from the simulation after their last recorded position.
 
-An example scenario that loads pre-deterimned bird tracks can be seen in [demo1.scn](https://github.com/amvlab/plugins_bluesky_birds/blob/main/scenarios/demo1.scn). This scenario calls the bird file found in `plugins/bird_movements/sample_birds.csv`.
+An example scenario that loads pre-determined bird tracks can be seen in [demo1.scn](https://github.com/amvlab/plugins_bluesky_birds/blob/main/scenarios/demo1.scn). This scenario calls the bird file found in `plugins/bird_movements/sample_birds.csv`.
 
 This scenario can be loaded in BlueSky by entering the follwoing command in the BlueSky console.
 
